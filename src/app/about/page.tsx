@@ -1,29 +1,40 @@
+'use client';
+import { BackButton } from '@/components/ui/back-button'; 
 import { Container } from '@/components/ui/container';
 
 export default function AboutPage() {
   return (
-    <Container className="py-12 space-y-12 text-zinc-200">
-      <section className="max-w-3xl space-y-6">
+    <Container className="py-12 space-y-8">
+      {/* Кнопка "Назад" з'явиться над заголовком */}
+      <BackButton /> 
+
+      <section className="space-y-6">
         <h1 className="font-[var(--font-cormorant)] text-4xl font-semibold text-white">
           Про майстерню
         </h1>
-        <p className="text-lg leading-relaxed">
-          Тут буде твоя історія про Майстерню гіпсу. Ви можете редагувати цей текст через адмін-панель.
-        </p>
+        
+        <div className="text-zinc-200 space-y-4">
+          <p className="text-lg leading-relaxed">
+            Ласкаво просимо до нашої майстерні. Ми створюємо унікальні вироби з гіпсу, поєднуючи традиційні техніки та сучасний дизайн.
+          </p>
+          <p>
+            Кожна робота — це ручна праця, де ми приділяємо увагу кожній деталі, щоб ви отримали не просто предмет декору, а справжній витвір мистецтва.
+          </p>
+        </div>
       </section>
 
-      <div className="grid gap-12 md:grid-cols-2">
+      <div className="grid gap-12 md:grid-cols-2 text-zinc-200">
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-white uppercase tracking-wider">Матеріали та догляд</h2>
           <p>
-            Ми використовуємо високоякісний гіпс. Для очищення використовуйте суху м'яку тканину.
+            Ми використовуємо екологічно чистий високоміцний гіпс. Щоб виріб служив довго, уникайте прямого контакту з водою та чистіть сухою м'якою тканиною.
           </p>
         </section>
 
         <section className="space-y-4">
           <h2 className="text-xl font-bold text-white uppercase tracking-wider">Доставка</h2>
           <p>
-            Доставка здійснюється по всій Україні Новою Поштою. Кожен виріб надійно пакується в захисний бокс.
+            Надсилаємо ваші замовлення по всій Україні Новою Поштою. Ми розробили спеціальне пакування, яке гарантує цілісність виробу під час транспортування.
           </p>
         </section>
       </div>
