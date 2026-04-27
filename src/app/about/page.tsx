@@ -3,25 +3,19 @@
 import { useRouter } from 'next/navigation';
 import { Container } from '@/components/ui/container';
 
-// Створюємо кнопку прямо тут, щоб не було помилок "Module not found"
-function LocalBackButton() {
-  const router = useRouter();
-  return (
-    <button 
-      onClick={() => router.back()}
-      className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors mb-6"
-    >
-      <span className="text-lg">←</span>
-      <span>Назад</span>
-    </button>
-  );
-}
-
 export default function AboutPage() {
+  const router = useRouter();
+
   return (
     <Container className="py-12 space-y-8">
-      {/* Використовуємо нашу локальну кнопку */}
-      <LocalBackButton /> 
+      {/* Кнопка "Назад" вбудована прямо в сторінку, без імпортів */}
+      <button 
+        onClick={() => router.back()}
+        className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors mb-6"
+      >
+        <span className="text-lg">←</span>
+        <span>Назад</span>
+      </button>
 
       <section className="space-y-6">
         <h1 className="font-[var(--font-cormorant)] text-4xl font-semibold text-white">
