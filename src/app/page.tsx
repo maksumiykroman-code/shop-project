@@ -6,14 +6,19 @@ import { ProductGrid } from '@/components/products/product-grid';
 import { getFeaturedProducts } from '@/lib/products';
 
 export default function HomePage() {
-  const featured = getFeaturedProducts();
+  // Отримуємо товари та примусово очищуємо їх від непотрібних текстових тегів
+  const featured = getFeaturedProducts().map(product => ({
+    ...product,
+    categoryLabel: "", // Видаляє напис "Фігуративний", "Дика природа" тощо
+    edition: "",       // Видаляє напис "Обмежена"
+    tagline: ""        // Видаляє будь-які додаткові анотації
+  }));
 
   return (
     <Container className="space-y-12">
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-950 via-zinc-950 to-bronze-950 shadow-soft">
         <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-2 lg:items-center">
           <div className="space-y-5">
-            {/* Рядок з обмеженими випусками видалено */}
             <h1 className="font-[var(--font-cormorant)] text-4xl font-semibold leading-tight sm:text-5xl">
               <span className="text-bronze-200">Федоренко стайл</span>
             </h1>
@@ -23,7 +28,6 @@ export default function HomePage() {
             </p>
             <div className="flex flex-wrap gap-3">
               <ButtonLink href="/shop">Переглянути магазин</ButtonLink>
-              {/* Кнопку "Про ательє" видалено */}
             </div>
             <div className="grid grid-cols-2 gap-4 pt-4 text-sm text-zinc-200/80">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
@@ -34,7 +38,6 @@ export default function HomePage() {
                 <p className="font-medium text-zinc-100">Сертифікат</p>
                 <p className="text-zinc-200/70">Підписана автентичність</p>
               </div>
-              {/* Блок "Підтримка студії" видалено */}
             </div>
           </div>
 
@@ -60,9 +63,6 @@ export default function HomePage() {
             <h2 className="font-[var(--font-cormorant)] text-3xl font-semibold">
               Рекомендовані роботи
             </h2>
-            <p className="text-sm text-zinc-300/80">
-              Невеликий вибір готовий до відправки.
-            </p>
           </div>
           <Link
             href="/shop"
