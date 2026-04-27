@@ -3,18 +3,23 @@ export interface Product {
   slug: string;
   name: string;
   price: number;
-  priceCents: number; // Додано
+  priceCents: number;
   description: string;
   shortDescription: string;
   longDescription: string;
   category: string;
   categoryLabel: string;
-  dimensions: string; // Додано
-  weight: string;     // Додано
-  patina: string;     // Додано
+  dimensions: string;
+  weight: string;
+  patina: string;
   images: { src: string; alt: string }[];
   stock: number;
   featured: boolean;
+  // Остання порція полів, що випали:
+  edition: string;           
+  isLimitedEdition: boolean; 
+  inStock: boolean;          
+  shippingWindow: string;    
 }
 
 const products: Product[] = [
@@ -34,7 +39,11 @@ const products: Product[] = [
     patina: "Classic Brown",
     images: [{ src: "/images/warrior.jpg", alt: "Бронзовий воїн" }],
     stock: 1,
-    featured: true
+    featured: true,
+    edition: "Original",
+    isLimitedEdition: true,
+    inStock: true,
+    shippingWindow: "2-4 weeks"
   }
 ];
 
