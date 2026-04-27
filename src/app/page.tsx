@@ -13,36 +13,28 @@ export default function HomePage() {
       <section className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-zinc-950 via-zinc-950 to-bronze-950 shadow-soft">
         <div className="grid gap-8 p-6 sm:p-10 lg:grid-cols-2 lg:items-center">
           <div className="space-y-5">
-            <p className="text-sm font-medium tracking-wide text-bronze-200/90">
-              Limited editions • Hand-finished patinas
-            </p>
+            {/* Рядок з обмеженими випусками видалено */}
             <h1 className="font-[var(--font-cormorant)] text-4xl font-semibold leading-tight sm:text-5xl">
-              Bronze sculptures with
-              <span className="text-bronze-200"> gallery-level</span> presence.
+              <span className="text-bronze-200">Федоренко стайл</span>
             </h1>
             <p className="max-w-prose text-zinc-200/90">
-              Collectible works cast in bronze and finished by hand — designed
-              to age beautifully and hold their character for decades.
+              Колекційні вироби, відлиті з бронзи та оброблені вручну — 
+              створені для того, щоб чудово старіти та зберігати свій характер протягом десятиліть.
             </p>
             <div className="flex flex-wrap gap-3">
-              <ButtonLink href="/shop">Browse the shop</ButtonLink>
-              <ButtonLink href="/about" variant="secondary">
-                About the atelier
-              </ButtonLink>
+              <ButtonLink href="/shop">Переглянути магазин</ButtonLink>
+              {/* Кнопку "Про ательє" видалено */}
             </div>
-            <div className="grid grid-cols-3 gap-4 pt-4 text-sm text-zinc-200/80">
+            <div className="grid grid-cols-2 gap-4 pt-4 text-sm text-zinc-200/80">
               <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                <p className="font-medium text-zinc-100">Secure packing</p>
-                <p className="text-zinc-200/70">Crate-style protection</p>
+                <p className="font-medium text-zinc-100">Безпечне пакування</p>
+                <p className="text-zinc-200/70">Захист у стилі ящика</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                <p className="font-medium text-zinc-100">Certificate</p>
-                <p className="text-zinc-200/70">Signed authenticity</p>
+                <p className="font-medium text-zinc-100">Сертифікат</p>
+                <p className="text-zinc-200/70">Підписана автентичність</p>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
-                <p className="font-medium text-zinc-100">Studio support</p>
-                <p className="text-zinc-200/70">Care + display advice</p>
-              </div>
+              {/* Блок "Підтримка студії" видалено */}
             </div>
           </div>
 
@@ -66,17 +58,17 @@ export default function HomePage() {
         <div className="flex items-end justify-between gap-4">
           <div>
             <h2 className="font-[var(--font-cormorant)] text-3xl font-semibold">
-              Featured pieces
+              Рекомендовані роботи
             </h2>
             <p className="text-sm text-zinc-300/80">
-              A small selection ready to ship.
+              Невеликий вибір готовий до відправки.
             </p>
           </div>
           <Link
             href="/shop"
             className="text-sm font-medium text-bronze-200 hover:text-bronze-100"
           >
-            View all →
+            Переглянути всі →
           </Link>
         </div>
         <ProductGrid products={featured} />
@@ -84,4 +76,3 @@ export default function HomePage() {
     </Container>
   );
 }
-
