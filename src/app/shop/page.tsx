@@ -6,13 +6,12 @@ export default async function ShopPage({
 }: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
-  // Чекаємо на searchParams, як того хоче Next.js 15
-  await searchParams; 
+  await searchParams;
   const products = await getAllProducts();
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Магазин скульптур</h1>
+      <h1 className="text-3xl font-bold mb-8">Shop</h1>
       <ProductGrid products={products} />
     </div>
   );
