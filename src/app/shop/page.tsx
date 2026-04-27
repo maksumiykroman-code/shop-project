@@ -1,5 +1,5 @@
 import { getAllProducts } from "@/lib/shop";
-import ProductGrid from "@/components/products/product-grid";
+import { ProductGrid } from "@/components/products/product-grid";
 
 export default async function ShopPage({
   searchParams,
