@@ -1,16 +1,31 @@
 {
-  "settings": {
-    "adminPassword": "1234",
-    "aboutText": "Ласкаво просимо до нашої майстерні...",
-    "shippingText": "Надсилаємо ваші замовлення по всій Україні..."
-  },
   "products": [
     {
       "id": "1",
-      "name": "Бюст Афіни",
-      "price": "1850",
-      "description": "Ручна робота з гіпсу",
-      "images": ["url1", "url2", "url3", "url4", "url5"]
+      "name": "Athena Bust",
+      "price": "1850 грн",
+      "image": "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17",
+      "material": "Гіпс",
+      "dimensions": "25x15 см",
+      "status": "В наявності"
+    },
+    {
+      "id": "2",
+      "name": "Wild Stag",
+      "price": "2650 грн",
+      "image": "https://images.unsplash.com/photo-1550537687-c91072c4792d",
+      "material": "Гіпс",
+      "dimensions": "30x20 см",
+      "status": "Під замовлення"
+    },
+    {
+      "id": "3",
+      "name": "Forge Spiral",
+      "price": "2190 грн",
+      "image": "https://images.unsplash.com/photo-1515542672103-d84fed742f56",
+      "material": "Гіпс",
+      "dimensions": "15x15 см",
+      "status": "В наявності"
     }
   ]
 }
