@@ -1,100 +1,108 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Container } from '@/components/ui/container';
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
-export default function AdminPage() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [password, setPassword] = useState('');
+export default function DashboardPage() {
+  const [name, setName] = useState('')
+  const [price, setPrice] = useState('')
+  const [description, setDescription] = useState('')
+  const [imageUrl, setImageUrl] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [message, setMessage] = useState('')
 
-  // ТУТ МІНЯЄТЬСЯ ПАРОЛЬ (зараз 7788)
-  const handleLogin = () => {
-    if (password === '7788') {
-      setIsLoggedIn(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
+
+    const { error } = await supabase
+      .from('products')
+      .insert([
+        { 
+          name, 
+          price: parseFloat(price), 
+          description, 
+          image_url: imageUrl 
+        }
+      ])
+
+    setLoading(false)
+    if (error) {
+      setMessage('Помилка: ' + error.message)
     } else {
-      alert('Невірний пароль! Спробуйте ще раз.');
+      setMessage('Товар успішно додано!')
+      setName(''); setPrice(''); setDescription(''); setImageUrl('')
     }
-  };
-
-  if (!isLoggedIn) {
-    return (
-      <Container className="py-20 flex flex-col items-center justify-center min-h-[60vh] text-white">
-        <div className="w-full max-w-md p-8 bg-zinc-900 rounded-xl border border-white/10 shadow-2xl">
-          <h1 className="text-3xl font-bold mb-6 text-center font-[var(--font-cormorant)]">
-            Адмін-доступ
-          </h1>
-          <div className="space-y-4">
-            <input 
-              type="password" 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-              placeholder="Введіть новий пароль"
-              className="w-full bg-black border border-white/10 p-3 rounded-lg text-white outline-none focus:border-bronze-500"
-            />
-            <button 
-              onClick={handleLogin}
-              className="w-full bg-bronze-500 text-black px-6 py-3 rounded-lg font-bold hover:bg-bronze-400 transition-colors"
-            >
-              Увійти
-            </button>
-          </div>
-        </div>
-      </Container>
-    );
   }
 
   return (
-    <Container className="py-12 text-white">
-      <div className="flex justify-between items-center mb-10 border-b border-white/10 pb-6">
-        <h1 className="text-3xl font-bold font-[var(--font-cormorant)] text-bronze-200">
-          Панель керування сайтом
-        </h1>
-        <button onClick={() => setIsLoggedIn(false)} className="text-xs text-zinc-500 hover:text-white">Вийти</button>
-      </div>
-      
-      <div className="grid gap-10">
-        {/* РЕДАГУВАННЯ ТЕКСТІВ */}
-        <section className="p-6 bg-zinc-900 rounded-xl border border-white/5">
-          <h2 className="text-xl font-semibold mb-6 text-bronze-100 uppercase tracking-wider">
-            📝 Тексти сайту
-          </h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs text-zinc-500 mb-2 uppercase">Про нас</label>
-              <textarea className="w-full bg-black border border-white/10 p-3 rounded-lg h-32 focus:border-bronze-500 outline-none text-sm" />
-            </div>
+    <div className="min-h-screen bg-black text-white p-8">
+      <div className="max-w-2xl mx-auto">
+        <h1 className="text-3xl font-bold mb-8 font-[var(--font-cormorant)]">Управління каталогом</h1>
+        
+        <form onSubmit={handleSubmit} className="space-y-6 bg-zinc-900/50 p-8 rounded-2xl border border-white/10">
+          <div>
+            <label className="block text-sm text-zinc-400 mb-2">Назва виробу</label>
+            <input 
+              type="text" 
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-white/30"
+              placeholder="Наприклад: Крилатий Дракон"
+              required
+            />
           </div>
-        </section>
 
-        {/* УПРАВЛІННЯ ТОВАРАМИ */}
-        <section className="p-6 bg-zinc-900 rounded-xl border border-white/5">
-          <h2 className="text-xl font-semibold mb-6 text-bronze-100 uppercase tracking-wider">
-            🏺 Товари (Посилання на фото)
-          </h2>
-          <div className="space-y-6">
-            <div className="p-4 bg-black/40 rounded-lg border border-white/5">
-              <input placeholder="Назва товару" className="w-full bg-transparent border-b border-white/10 mb-4 p-2 outline-none focus:border-bronze-500" />
-              <div className="grid grid-cols-1 gap-2">
-                <input placeholder="URL головного фото" className="bg-black/50 p-2 text-xs rounded border border-white/5" />
-                <input placeholder="URL фото 2" className="bg-black/50 p-2 text-xs rounded border border-white/5" />
-                <input placeholder="URL фото 3" className="bg-black/50 p-2 text-xs rounded border border-white/5" />
-              </div>
-            </div>
-            
-            <button className="w-full py-4 border-2 border-dashed border-white/10 rounded-lg text-zinc-500 hover:text-bronze-500 transition-all font-medium text-sm">
-              + Додати ще один товар
-            </button>
+          <div>
+            <label className="block text-sm text-zinc-400 mb-2">Ціна (грн)</label>
+            <input 
+              type="number" 
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+              className="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-white/30"
+              placeholder="1500"
+              required
+            />
           </div>
-        </section>
 
-        <button 
-          className="bg-bronze-500 text-black px-10 py-4 rounded-full font-bold hover:bg-bronze-400 shadow-lg transition-all uppercase tracking-widest text-sm mx-auto block"
-          onClick={() => alert('Збереження налаштуємо в наступному кроці!')}
-        >
-          Зберегти зміни
-        </button>
+          <div>
+            <label className="block text-sm text-zinc-400 mb-2">Опис</label>
+            <textarea 
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full bg-black border border-white/10 rounded-lg p-3 h-32 focus:outline-none focus:border-white/30"
+              placeholder="Короткий опис скульптури..."
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-zinc-400 mb-2">Посилання на фото (URL)</label>
+            <input 
+              type="text" 
+              value={imageUrl}
+              onChange={(e) => setImageUrl(e.target.value)}
+              className="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-white/30"
+              placeholder="https://example.com/photo.jpg"
+              required
+            />
+          </div>
+
+          <button 
+            type="submit"
+            disabled={loading}
+            className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-zinc-200 transition-colors disabled:opacity-50"
+          >
+            {loading ? 'Збереження...' : 'Додати виріб у каталог'}
+          </button>
+
+          {message && (
+            <p className={`mt-4 text-center ${message.includes('Помилка') ? 'text-red-500' : 'text-green-500'}`}>
+              {message}
+            </p>
+          )}
+        </form>
       </div>
-    </Container>
-  );
+    </div>
+  )
 }
