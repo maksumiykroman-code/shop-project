@@ -23,7 +23,7 @@ export default function HomePage() {
             </h2>
             <span className="text-zinc-500 text-sm uppercase tracking-widest">Гіпс / Ручна робота</span>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-zinc-900/50 p-8 rounded-2xl border border-white/5 text-center">
               <p className="text-zinc-500 italic">Каталог оновлюється...</p>
@@ -31,13 +31,13 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* КНОПКА УПРАВЛІННЯ (Повертаємо на місце) */}
+        {/* КНОПКА УПРАВЛІННЯ */}
         <div className="mt-20 pb-10 flex justify-end">
           <Link 
             href="/dashboard" 
-            className="text-[10px] text-zinc-700 hover:text-bronze-500 uppercase tracking-[0.3em] transition-colors"
+            className="text-zinc-600 hover:text-white text-xs transition-colors duration-300"
           >
-            Управління
+            Система управління
           </Link>
         </div>
       </Container>
