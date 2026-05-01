@@ -1,7 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { ProductGrid } from "@/components/products/product-grid";
 
 export default function ShopPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -16,20 +15,9 @@ export default function ShopPage() {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-
-        // ПЕРЕКЛАДАЧ: підлаштовуємо дані з бази під твій компонент ProductGrid
-        const formattedProducts = (data || []).map(p => ({
-          ...p,
-          id: p.id,
-          name: p.title,          // База дає title -> компонент хоче name
-          price: Number(p.price), // База дає рядок -> компонент хоче число
-          image: p.images && p.images.length > 0 ? p.images[0] : '/placeholder.jpg', // Беремо перше фото
-          description: p.description
-        }));
-
-        setProducts(formattedProducts);
+        setProducts(data || []);
       } catch (err) {
-        console.error('Помилка завантаження товарів:', err);
+        console.error('Error:', err);
       } finally {
         setLoading(false);
       }
@@ -37,29 +25,33 @@ export default function ShopPage() {
     fetchProducts();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-20 text-center text-white bg-black min-h-screen">
-        <p className="text-xl animate-pulse tracking-widest uppercase">Завантаження майстерні...</p>
-      </div>
-    );
-  }
+  if (loading) return <div className="bg-black min-h-screen text-white p-10">Завантаження...</div>;
 
   return (
-    <div className="bg-black min-h-screen text-white">
-      <div className="container mx-auto px-4 py-12">
-        <header className="mb-12 border-b border-zinc-800 pb-8">
-          <h1 className="text-4xl font-bold tracking-tighter uppercase">МАГАЗИН СКУЛЬПТУР</h1>
-          <p className="text-zinc-500 mt-2">Авторські роботи Саші Федоренко</p>
-        </header>
-
-        {products.length === 0 ? (
-          <div className="text-center py-20 border border-dashed border-zinc-800 rounded-2xl">
-            <p className="text-zinc-500 italic uppercase tracking-widest">Наразі нових робіт немає...</p>
+    <div className="bg-black min-h-screen text-white p-8">
+      <h1 className="text-3xl font-bold mb-10 uppercase tracking-tighter">Магазин скульптур</h1>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {products.map((product) => (
+          <div key={product.id} className="border border-zinc-800 p-4 rounded-lg bg-zinc-900/50">
+            <div className="aspect-square mb-4 overflow-hidden rounded bg-zinc-800">
+              {product.images && product.images[0] ? (
+                <img 
+                  src={product.images[0]} 
+                  alt={product.title} 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-zinc-500">Немає фото</div>
+              )}
+            </div>
+            <h2 className="text-xl font-bold uppercase">{product.title}</h2>
+            <p className="text-zinc-400 text-sm my-2">{product.description}</p>
+            <div className="text-orange-500 font-mono text-lg mt-4">
+              {product.price} грн
+            </div>
           </div>
-        ) : (
-          <ProductGrid products={products} />
-        )}
+        ))}
       </div>
     </div>
   );
