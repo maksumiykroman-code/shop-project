@@ -1,108 +1,59 @@
-'use client'
+'use client';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase';
 
-import { useState } from 'react'
-import { supabase } from '@/lib/supabase'
+export default function AdminDashboard() {
+  const [settings, setSettings] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-export default function DashboardPage() {
-  const [name, setName] = useState('')
-  const [price, setPrice] = useState('')
-  const [description, setDescription] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage('')
-
-    const { error } = await supabase
-      .from('products')
-      .insert([
-        { 
-          name, 
-          price: parseFloat(price), 
-          description, 
-          image_url: imageUrl 
-        }
-      ])
-
-    setLoading(false)
-    if (error) {
-      setMessage('Помилка: ' + error.message)
-    } else {
-      setMessage('Товар успішно додано!')
-      setName(''); setPrice(''); setDescription(''); setImageUrl('')
+  // 1. Завантажуємо налаштування з бази при відкритті
+  useEffect(() => {
+    async function fetchSettings() {
+      const { data } = await supabase.from('site_settings').select('*');
+      if (data) setSettings(data);
+      setLoading(false);
     }
-  }
+    fetchSettings();
+  }, []);
+
+  // 2. Функція для збереження змін
+  const handleUpdate = async (id: number, newContent: string) => {
+    const { error } = await supabase
+      .from('site_settings')
+      .update({ content: newContent })
+      .eq('id', id);
+
+    if (error) alert('Помилка оновлення');
+    else alert('Дані збережено!');
+  };
+
+  if (loading) return <div className="p-10 text-white">Завантаження налаштувань...</div>;
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
-      <div className="max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8 font-[var(--font-cormorant)]">Управління каталогом</h1>
-        
-        <form onSubmit={handleSubmit} className="space-y-6 bg-zinc-900/50 p-8 rounded-2xl border border-white/10">
-          <div>
-            <label className="block text-sm text-zinc-400 mb-2">Назва виробу</label>
-            <input 
-              type="text" 
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-white/30"
-              placeholder="Наприклад: Крилатий Дракон"
-              required
-            />
+    <div className="p-8 bg-black min-h-screen text-white">
+      <h1 className="text-3xl font-bold mb-8 text-center">Керування сайтом (CMS)</h1>
+      
+      <div className="max-w-4xl mx-auto space-y-6">
+        {settings.map((item) => (
+          <div key={item.id} className="p-6 border border-zinc-800 rounded-xl bg-zinc-900 flex flex-col gap-3">
+            <label className="text-sm text-zinc-400 uppercase tracking-wider">{item.label}</label>
+            <div className="flex gap-4">
+              <input 
+                type="text" 
+                defaultValue={item.content}
+                className="flex-1 p-3 bg-black border border-zinc-700 rounded text-white focus:border-white outline-none transition"
+                onBlur={(e) => (item.tempContent = e.target.value)} // Тимчасово зберігаємо зміну
+              />
+              <button 
+                onClick={() => handleUpdate(item.id, item.tempContent || item.content)}
+                className="px-6 py-3 bg-white text-black font-bold rounded hover:bg-zinc-200 transition"
+              >
+                Оновити
+              </button>
+            </div>
           </div>
-
-          <div>
-            <label className="block text-sm text-zinc-400 mb-2">Ціна (грн)</label>
-            <input 
-              type="number" 
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              className="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-white/30"
-              placeholder="1500"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-zinc-400 mb-2">Опис</label>
-            <textarea 
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-black border border-white/10 rounded-lg p-3 h-32 focus:outline-none focus:border-white/30"
-              placeholder="Короткий опис скульптури..."
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm text-zinc-400 mb-2">Посилання на фото (URL)</label>
-            <input 
-              type="text" 
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              className="w-full bg-black border border-white/10 rounded-lg p-3 focus:outline-none focus:border-white/30"
-              placeholder="https://example.com/photo.jpg"
-              required
-            />
-          </div>
-
-          <button 
-            type="submit"
-            disabled={loading}
-            className="w-full bg-white text-black font-bold py-4 rounded-lg hover:bg-zinc-200 transition-colors disabled:opacity-50"
-          >
-            {loading ? 'Збереження...' : 'Додати виріб у каталог'}
-          </button>
-
-          {message && (
-            <p className={`mt-4 text-center ${message.includes('Помилка') ? 'text-red-500' : 'text-green-500'}`}>
-              {message}
-            </p>
-          )}
-        </form>
+        ))}
       </div>
     </div>
-  )
+  );
 }
