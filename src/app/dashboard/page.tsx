@@ -44,7 +44,7 @@ export default function AdminDashboard() {
     setLoading(false);
   }
 
-  // --- ЛОГІКА ФОНУ САЙТУ (НОВЕ) ---
+  // --- ЛОГІКА ФОНУ САЙТУ (ВИПРАВЛЕНО ХІРУРГІЧНО) ---
   const handleUploadBackground = async (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -61,11 +61,26 @@ export default function AdminDashboard() {
       const { data: linkData } = supabase.storage.from('sculptures').getPublicUrl(fileName);
       const publicUrl = linkData.publicUrl;
 
-      const { error: dbError } = await supabase
+      // Спочатку перевіряємо наявність запису, щоб уникнути помилки ON CONFLICT
+      const { data: existingSetting } = await supabase
         .from('site_settings')
-        .upsert({ label: 'background', content: publicUrl }, { onConflict: 'label' });
+        .select('id')
+        .eq('label', 'background')
+        .single();
 
-      if (dbError) throw dbError;
+      if (existingSetting) {
+        const { error: updateError } = await supabase
+          .from('site_settings')
+          .update({ content: publicUrl })
+          .eq('id', existingSetting.id);
+        if (updateError) throw updateError;
+      } else {
+        const { error: insertError } = await supabase
+          .from('site_settings')
+          .insert({ label: 'background', content: publicUrl });
+        if (insertError) throw insertError;
+      }
+
       alert('ФОН ОНОВЛЕНО!');
       fetchData();
     } catch (err: any) {
@@ -161,7 +176,7 @@ export default function AdminDashboard() {
               </button>
             </div>
             <button onClick={handleDeleteBackground} className="border border-red-900/50 text-red-500 px-8 py-3 rounded text-[10px] font-black uppercase hover:bg-red-950/30 transition">
-              ВИДАТИ ФОН
+              ВИДАЛИТИ ФОН
             </button>
             <p className="text-[10px] text-zinc-600 italic ml-2">Зображення автоматично затемнюється для читабельності тексту</p>
           </div>
