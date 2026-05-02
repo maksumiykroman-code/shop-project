@@ -10,11 +10,20 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchData() {
+      // Завантажуємо товари
       const { data: prods } = await supabase.from('products').select('*').order('created_at', { ascending: false }).limit(6);
       if (prods) setProducts(prods);
 
-      const { data: setts } = await supabase.from('site_settings').select('*').eq('label', 'background').single();
-      if (setts?.content) setBgImage(setts.content);
+      // ВИПРАВЛЕНО: Шукаємо по key_name, а не по label
+      const { data: setts } = await supabase
+        .from('site_settings')
+        .select('content')
+        .eq('key_name', 'background')
+        .single();
+      
+      if (setts?.content && setts.content !== 'none') {
+        setBgImage(setts.content);
+      }
 
       setLoading(false);
     }
@@ -25,10 +34,12 @@ export default function Home() {
     <main 
       className="min-h-screen text-white font-sans transition-all duration-1000 bg-black"
       style={{
-        backgroundImage: bgImage ? `linear-gradient(to bottom, rgba(0,0,0,0.75), rgba(0,0,0,0.9)), url(${bgImage})` : 'none',
+        // Додав легке затемнення (0.6), щоб текст "Федоренко Стиль" добре читалися на фоні фото
+        backgroundImage: bgImage ? `linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url(${bgImage})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundAttachment: 'fixed'
+        backgroundAttachment: 'fixed',
+        backgroundRepeat: 'no-repeat'
       }}
     >
       <section className="pt-32 pb-12 px-8 max-w-6xl mx-auto">
