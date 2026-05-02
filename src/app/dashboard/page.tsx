@@ -9,7 +9,6 @@ export default function AdminDashboard() {
   const [newProduct, setNewProduct] = useState({ title: '', price: '', description: '' });
   const [uploading, setUploading] = useState(false);
   
-  // Авторизація
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
   const [authLoading, setAuthLoading] = useState(true);
@@ -37,14 +36,13 @@ export default function AdminDashboard() {
 
   async function fetchData() {
     setLoading(true);
-    const { data: setts } = await supabase.from('site_settings').select('*');
+    const { data: setts, error: err } = await supabase.from('site_settings').select('*');
     const { data: prods } = await supabase.from('products').select('*').order('created_at', { ascending: false });
     if (setts) setSettings(setts);
     if (prods) setProducts(prods);
     setLoading(false);
   }
 
-  // --- ЛОГІКА ФОНУ САЙТУ (ВИПРАВЛЕНО ХІРУРГІЧНО) ---
   const handleUploadBackground = async (e: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -61,26 +59,13 @@ export default function AdminDashboard() {
       const { data: linkData } = supabase.storage.from('sculptures').getPublicUrl(fileName);
       const publicUrl = linkData.publicUrl;
 
-      // Спочатку перевіряємо наявність запису, щоб уникнути помилки ON CONFLICT
-      const { data: existingSetting } = await supabase
+      const { error: dbError } = await supabase
         .from('site_settings')
-        .select('id')
-        .eq('label', 'background')
-        .single();
+        .update({ content: publicUrl })
+        .eq('key_name', 'background');
 
-      if (existingSetting) {
-        const { error: updateError } = await supabase
-          .from('site_settings')
-          .update({ content: publicUrl })
-          .eq('id', existingSetting.id);
-        if (updateError) throw updateError;
-      } else {
-        const { error: insertError } = await supabase
-          .from('site_settings')
-          .insert({ label: 'background', content: publicUrl });
-        if (insertError) throw insertError;
-      }
-
+      if (dbError) throw dbError;
+      
       alert('ФОН ОНОВЛЕНО!');
       fetchData();
     } catch (err: any) {
@@ -94,20 +79,19 @@ export default function AdminDashboard() {
     if (!confirm('Видалити фонове зображення?')) return;
     const { error } = await supabase
       .from('site_settings')
-      .update({ content: '' })
-      .eq('label', 'background');
+      .update({ content: 'none' })
+      .eq('key_name', 'background');
     
     if (error) alert('Помилка видалення');
     else {
-      alert('Фон видалено (повернуто чорний колір)');
+      alert('Фон скинуто');
       fetchData();
     }
   };
 
-  // --- ТВОЇ ФУНКЦІЇ БЕЗ ЗМІН ---
   const handleUpdateSetting = async (id: number, newContent: string) => {
     const { error } = await supabase.from('site_settings').update({ content: newContent }).eq('id', id);
-    if (error) alert('Текст оновлено!');
+    if (!error) alert('Текст оновлено!');
     fetchData();
   };
 
@@ -142,7 +126,7 @@ export default function AdminDashboard() {
     fetchData();
   };
 
-  if (authLoading) return <div className="p-10 text-white bg-black min-h-screen font-sans uppercase">Завантаження...</div>;
+  if (authLoading) return <div className="p-10 text-white bg-black min-h-screen font-sans uppercase text-center">Завантаження...</div>;
 
   if (!isAuthorized) {
     return (
@@ -165,28 +149,27 @@ export default function AdminDashboard() {
       
       <div className="max-w-5xl mx-auto space-y-12">
         
-        {/* НОВИЙ БЛОК: ФОН САЙТУ */}
+        {/* КЕРУВАННЯ ФОНОМ */}
         <section className="p-6 border border-zinc-800 rounded-xl bg-zinc-900/40">
           <h2 className="text-xs font-bold text-zinc-400 uppercase mb-6 tracking-[0.2em]">Фон головної сторінки</h2>
           <div className="flex flex-wrap gap-4 items-center">
             <div className="relative">
               <input type="file" accept="image/*" onChange={handleUploadBackground} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" disabled={uploading} />
               <button className="bg-white text-black px-8 py-3 rounded text-[10px] font-black uppercase hover:bg-zinc-200 transition">
-                {uploading ? 'ЗАВАНТАЖЕННЯ...' : 'ЗАВАНТАЖИТИ ФОН'}
+                {uploading ? 'ЗАВАНТАЖЕННЯ...' : 'ЗАВАНТАЖИТИ НОВИЙ ФОН'}
               </button>
             </div>
             <button onClick={handleDeleteBackground} className="border border-red-900/50 text-red-500 px-8 py-3 rounded text-[10px] font-black uppercase hover:bg-red-950/30 transition">
-              ВИДАЛИТИ ФОН
+              Скинути фон
             </button>
-            <p className="text-[10px] text-zinc-600 italic ml-2">Зображення автоматично затемнюється для читабельності тексту</p>
           </div>
         </section>
 
         {/* ТЕКСТОВІ НАЛАШТУВАННЯ */}
         <section>
-          <h2 className="text-lg mb-6 font-semibold text-zinc-500 italic">Налаштування контенту</h2>
+          <h2 className="text-lg mb-6 font-semibold text-zinc-500 italic">Налаштування тексту</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {settings.filter(s => s.label !== 'background').map((item) => (
+            {settings.filter(s => s.key_name !== 'background').map((item) => (
               <div key={item.id} className="p-4 border border-zinc-800 rounded-lg bg-zinc-900/50">
                 <label className="text-[10px] text-zinc-600 uppercase block mb-2">{item.label}</label>
                 <div className="flex gap-2">
@@ -200,38 +183,19 @@ export default function AdminDashboard() {
 
         {/* ДОДАВАННЯ ТОВАРУ */}
         <section className="p-8 border-2 border-dashed border-zinc-800 rounded-2xl bg-zinc-900/20">
-          <h2 className="text-xl mb-8 font-bold uppercase tracking-tighter">Додати нову роботу</h2>
+          <h2 className="text-xl mb-8 font-bold uppercase tracking-tighter">Додати нову скульптуру</h2>
           <form onSubmit={handleAddProduct} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input type="text" placeholder="Назва виробу" required value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})} className="p-4 bg-black border border-zinc-700 rounded outline-none focus:border-orange-500" />
-              <input type="number" placeholder="Ціна (ГРН)" required value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} className="p-4 bg-black border border-zinc-700 rounded outline-none focus:border-orange-500" />
+              <input type="text" placeholder="Назва" required value={newProduct.title} onChange={e => setNewProduct({...newProduct, title: e.target.value})} className="p-4 bg-black border border-zinc-700 rounded outline-none focus:border-orange-500" />
+              <input type="number" placeholder="Ціна" required value={newProduct.price} onChange={e => setNewProduct({...newProduct, price: e.target.value})} className="p-4 bg-black border border-zinc-700 rounded outline-none focus:border-orange-500" />
             </div>
-            <textarea placeholder="Опис роботи..." value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="w-full p-4 bg-black border border-zinc-700 rounded h-32 outline-none focus:border-orange-500" />
+            <textarea placeholder="Опис..." value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} className="w-full p-4 bg-black border border-zinc-700 rounded h-32 outline-none focus:border-orange-500" />
             <input type="file" multiple accept="image/*" className="w-full p-4 bg-zinc-900 rounded text-[10px] uppercase font-bold text-zinc-500" />
             <button type="submit" disabled={uploading} className="w-full py-5 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-xl transition uppercase tracking-widest">
-              {uploading ? 'ПРОЦЕС ЗАВАНТАЖЕННЯ...' : 'ОПУБЛІКУВАТИ ТОВАР'}
+              {uploading ? 'ЗАВАНТАЖЕННЯ...' : 'ОПУБЛІКУВАТИ'}
             </button>
           </form>
         </section>
-
-        {/* СПИСОК */}
-        <section>
-          <h2 className="text-lg mb-6 font-semibold text-zinc-500 italic">Наявні товари ({products.length})</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {products.map((prod) => (
-              <div key={prod.id} className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800">
-                <div className="h-40 bg-zinc-800">
-                  {prod.images?.[0] && <img src={prod.images[0]} alt="" className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all" />}
-                </div>
-                <div className="p-4 flex justify-between items-center">
-                  <span className="text-[10px] font-bold uppercase truncate pr-2">{prod.title}</span>
-                  <button onClick={() => deleteProduct(prod.id)} className="text-[10px] text-red-500 font-bold uppercase hover:underline">Видалити</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
       </div>
     </div>
   );
